@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Email Inbox</h1>
+    
+    <div class="mb-3">
+        <form method="get" class="form-inline">
+            <input type="text" name="q" class="form-control mr-2" 
+                   placeholder="Search emails..." value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{% url 'emails:list' %}" class="btn btn-secondary ml-2">Clear</a>
+        </form>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Sender</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>
+                        <a href="{% url 'emails:detail' email.pk %}">
+                            {{ email.subject|default:"No Subject"|truncatechars:50 }}
+                        </a>
+                    </td>
+                    <td>{{ email.sender|default:"Unknown" }}</td>
+                    <td>{{ email.date_received|date:"Y-m-d H:i"|default:"N/A" }}</td>
+                    <td>
+                        {% if email.is_read %}
+                            <span class="badge badge-secondary">Read</span>
+                        {% else %}
+                            <span class="badge badge-success">Unread</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No emails found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
