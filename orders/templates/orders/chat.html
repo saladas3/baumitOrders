@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat - Orders Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-comments mr-2"></i>Order Chat</h5>
+                <span class="badge badge-primary">Live</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Chat interface -->
+                    <div class="col-md-12">
+                        <div id="chat-messages" class="border rounded p-3 mb-3" style="height: 400px; overflow-y: auto;">
+                            <!-- Messages will be displayed here -->
+                            <div class="message mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <strong>System</strong>
+                                    <small class="text-muted">Just now</small>
+                                </div>
+                                <p class="mb-0">Welcome to the Order Manager chat! You can discuss orders here.</p>
+                            </div>
+                        </div>
+                        
+                        <form id="chat-form" class="d-flex">
+                            <input type="text" id="message-input" class="form-control mr-2" placeholder="Type your message...">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    const chatForm = $('#chat-form');
+    const messageInput = $('#message-input');
+    const chatMessages = $('#chat-messages');
+    
+    // Function to add a new message
+    function addMessage(sender, text) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        const messageElement = `
+            <div class="message mb-2">
+                <div class="d-flex justify-content-between">
+                    <strong>${sender}</strong>
+                    <small class="text-muted">${timeString}</small>
+                </div>
+                <p class="mb-0">${text}</p>
+            </div>
+        `;
+        
+        chatMessages.append(messageElement);
+        chatMessages.scrollTop(chatMessages[0].scrollHeight);
+    }
+    
+    // Handle form submission
+    chatForm.on('submit', function(e) {
+        e.preventDefault();
+        const message = messageInput.val().trim();
+        
+        if (message) {
+            addMessage('You', message);
+            messageInput.val('');
+            
+            // Simulate a response after a short delay
+            setTimeout(function() {
+                addMessage('System', 'This is a simulated response to your message.');
+            }, 1000);
+        }
+    });
+    
+    // Add some sample messages on page load
+    setTimeout(function() {
+        addMessage('System', 'Chat functionality is ready!');
+    }, 500);
+});
+</script>
+{% endblock %}

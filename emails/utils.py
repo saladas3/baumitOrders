@@ -1,3 +1,22 @@
+"""
+Utility functions for parsing and importing emails.
+
+This module provides utilities for parsing email files (both .eml and .msg formats)
+and importing them into the Django database.
+
+Classes:
+    EmailParser: Static methods for parsing email content.
+    EmailImporter: Static methods for importing emails from folders.
+
+Functions:
+    decode_header_value: Decodes email header values.
+    parse_date: Parses date strings from email headers.
+    get_email_body: Extracts text and HTML body content from email.
+    get_attachments: Extracts attachment information from email.
+    parse_email_file: Parses a single email file into structured data.
+    import_from_folder: Imports all emails from a folder recursively or not.
+"""
+
 import os
 import email
 from email import policy
@@ -14,9 +33,26 @@ from email.header import decode_header, make_header
 from .models import Email
 
 class EmailParser:
+    """
+    Static methods for parsing email content from files.
+    
+    This class provides utility methods for extracting information from email files,
+    including headers, body content, and attachments.
+    """
+    
     @staticmethod
     def decode_header_value(header_value):
-        """Decodifică header-ele de email"""
+        """
+        Decode email header values.
+        
+        Decodes encoded header values that may contain non-ASCII characters.
+        
+        Args:
+            header_value (str): The raw header value to decode.
+            
+        Returns:
+            str: The decoded header value, or empty string if input is None/empty.
+        """
         if not header_value:
             return ""
         try:
@@ -27,7 +63,17 @@ class EmailParser:
 
     @staticmethod
     def parse_date(date_str):
-        """Parsează data din email"""
+        """
+        Parse date strings from email headers.
+        
+        Attempts to parse various date formats commonly found in email headers.
+        
+        Args:
+            date_str (str): The raw date string from the email header.
+            
+        Returns:
+            datetime: Parsed datetime object, or None if parsing fails.
+        """
         if not date_str:
             return None
         try:
@@ -47,7 +93,17 @@ class EmailParser:
 
     @staticmethod
     def get_email_body(msg):
-        """Extrage body-ul emailului (text și HTML)"""
+        """
+        Extract body content (text and HTML) from email message.
+        
+        Parses multipart emails to extract both plain text and HTML versions of the body.
+        
+        Args:
+            msg (email.message.Message): The parsed email message object.
+            
+        Returns:
+            tuple: A tuple containing (body_text, body_html) strings.
+        """
         body_text = ""
         body_html = ""
 
@@ -96,7 +152,17 @@ class EmailParser:
 
     @staticmethod
     def get_attachments(msg):
-        """Extrage atașamentele din email"""
+        """
+        Extract attachment information from email message.
+        
+        Parses multipart emails to identify and extract attachment details.
+        
+        Args:
+            msg (email.message.Message): The parsed email message object.
+            
+        Returns:
+            list: A list of dictionaries containing attachment information.
+        """
         attachments = []
 
         if msg.is_multipart():
@@ -118,7 +184,18 @@ class EmailParser:
 
     @staticmethod
     def parse_email_file(file_path):
-        """Parsează un fișier .eml"""
+        """
+        Parse a single email file (.eml or .msg) into structured data.
+        
+        Reads and parses an email file, extracting all relevant information including
+        headers, body content, and attachments.
+        
+        Args:
+            file_path (str): The path to the email file to parse.
+            
+        Returns:
+            dict: A dictionary containing parsed email data, or None if parsing fails.
+        """
         try:
             with open(file_path, 'rb') as f:
                 msg = BytesParser(policy=policy.default).parse(f)
@@ -155,9 +232,29 @@ class EmailParser:
 
 
 class EmailImporter:
+    """
+    Static methods for importing emails from local folders.
+    
+    This class provides functionality to import email files from local directories
+    into the Django database, handling duplicate detection and error management.
+    """
+    
     @staticmethod
     def import_from_folder(folder_path, recursive=True):
-        """Importă toate emailurile dintr-un folder"""
+        """
+        Import all emails from a local folder into the database.
+        
+        Scans a folder (optionally recursively) for email files (.eml or .msg)
+        and imports them into the database, skipping duplicates.
+        
+        Args:
+            folder_path (str): The path to the folder containing email files.
+            recursive (bool): Whether to scan subfolders recursively. Defaults to True.
+            
+        Returns:
+            dict: A dictionary containing import statistics including imported,
+                  skipped, and error counts.
+        """
         imported_count = 0
         skipped_count = 0
         error_count = 0

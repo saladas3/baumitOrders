@@ -1,3 +1,10 @@
+"""
+URL patterns for the emails app.
+
+This module defines the URL routing for the emails application, mapping URLs
+to their corresponding view functions and classes.
+"""
+
 from django.urls import path
 from . import views
 
